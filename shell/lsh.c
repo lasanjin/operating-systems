@@ -23,7 +23,7 @@
 #include <readline/readline.h>
 #include "parse.h"
 
-/* - - - - - - - - MY CODE - - - - - - - - */
+/* - - - - - - - - LASANJIN - - - - - - - - */
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -32,7 +32,7 @@
 
 #define R 0
 #define W 1
-/* - - - - - - - - END MY CODE - - - - - - - - */
+/* - - - - - - - - END LSANJIN - - - - - - - - */
 
 /*
  * Function declarations
@@ -41,7 +41,7 @@ void PrintCommand(int, Command *);
 void PrintPgm(Pgm *);
 void stripwhite(char *);
 
-/* - - - - - - - - MY CODE - - - - - - - - */
+/* - - - - - - - - LASANJIN - - - - - - - - */
 void sigchild_handler(int sig);
 void sigint_handler(int sig);
 void exec_cd(char **args);
@@ -51,7 +51,7 @@ void redirect_io(int fd, int io);
 void pipe_commands(Pgm *pgm);
 void _wait();
 void exec_args(char **args);
-/* - - - - - - - - END MY CODE - - - - - - - - */
+/* - - - - - - - - END LASANJIN - - - - - - - - */
 
 /* When non-zero, this global means the user is done using this program. */
 int done = 0;
@@ -65,12 +65,12 @@ int main(void) {
   Command cmd;
   int n;
 
-  /* - - - - - - - - MY CODE - - - - - - - - */
+  /* - - - - - - - - LASANJIN - - - - - - - - */
   signal(SIGCHLD, sigchild_handler);
   signal(SIGINT, sigint_handler);
   lsh_pid = getpid();
   char **args;
-  /* - - - - - - - - END MY CODE - - - - - - - - */
+  /* - - - - - - - - END LASANJIN - - - - - - - - */
 
   while (!done) {
     char *line;
@@ -93,7 +93,7 @@ int main(void) {
         n = parse(line, &cmd);
         // PrintCommand(n, &cmd);
 
-        /* - - - - - - - - MY CODE - - - - - - - - */
+        /* - - - - - - - - LASANJIN - - - - - - - - */
         if (n > 0) {
           args = (&cmd)->pgm->pgmlist;
 
@@ -107,7 +107,7 @@ int main(void) {
             exec_commands(&cmd);
           }
         }
-        /* - - - - - - - - END MY CODE - - - - - - - - */
+        /* - - - - - - - - END LASANJIN - - - - - - - - */
       }
     }
 
@@ -119,8 +119,7 @@ int main(void) {
   return 0;
 }
 
-/* - - - - - - - - MY CODE - - - - - - - - */
-
+/* - - - - - - - - LASANJIN - - - - - - - - */
 /*
  * Handle SIGCHLD signal
  */
@@ -144,7 +143,7 @@ void sigint_handler(int sig) {
  */
 void exec_cd(char **args) {
   char *dir = *(++args);
-  
+
   if (chdir(dir) == -1) {
     perror("chdir()");
   }
@@ -223,7 +222,7 @@ void pipe_commands(Pgm *pgm) {
   int pipefd[2];
   if (pipe(pipefd)) {
     perror("pipe()");
-  } 
+  }
 
   switch (fork()) {
     case -1:
@@ -274,7 +273,7 @@ void exec_args(char **args) {
     exit(1);
   }
 }
-/* - - - - - - - - END MY CODE - - - - - - - - */
+/* - - - - - - - - END LASANJIN - - - - - - - - */
 
 /*
  * Prints a Command structure as returned by parse on stdout
