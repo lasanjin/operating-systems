@@ -23,7 +23,7 @@
 #include <readline/readline.h>
 #include "parse.h"
 
-/* - - - - - - - - LASANJIN - - - - - - - - */
+/* - - - - - - - - START OUR CODE - - - - - - - - */
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -32,7 +32,7 @@
 
 #define R 0
 #define W 1
-/* - - - - - - - - END LSANJIN - - - - - - - - */
+/* - - - - - - - - END OUR CODE - - - - - - - - */
 
 /*
  * Function declarations
@@ -41,7 +41,7 @@ void PrintCommand(int, Command *);
 void PrintPgm(Pgm *);
 void stripwhite(char *);
 
-/* - - - - - - - - LASANJIN - - - - - - - - */
+/* - - - - - - - - START OUR CODE - - - - - - - - */
 void sigchild_handler(int sig);
 void sigint_handler(int sig);
 void exec_cd(char **args);
@@ -51,12 +51,10 @@ void redirect_io(int fd, int io);
 void pipe_commands(Pgm *pgm);
 void _wait();
 void exec_args(char **args);
-/* - - - - - - - - END LASANJIN - - - - - - - - */
+/* - - - - - - - - END OUR CODE - - - - - - - - */
 
 /* When non-zero, this global means the user is done using this program. */
 int done = 0;
-
-int lsh_pid;
 
 /*
  * Gets the ball rolling...
@@ -65,12 +63,13 @@ int main(void) {
   Command cmd;
   int n;
 
-  /* - - - - - - - - LASANJIN - - - - - - - - */
+  /* - - - - - - - - START OUR CODE - - - - - - - - */
   signal(SIGCHLD, sigchild_handler);
-  signal(SIGINT, sigint_handler);
-  lsh_pid = getpid();
+
+  // Don't kill lsh
+  signal(SIGINT, SIG_IGN);
   char **args;
-  /* - - - - - - - - END LASANJIN - - - - - - - - */
+  /* - - - - - - - - END OUR CODE - - - - - - - - */
 
   while (!done) {
     char *line;
@@ -93,7 +92,7 @@ int main(void) {
         n = parse(line, &cmd);
         // PrintCommand(n, &cmd);
 
-        /* - - - - - - - - LASANJIN - - - - - - - - */
+        /* - - - - - - - - START OUR CODE - - - - - - - - */
         if (n > 0) {
           args = (&cmd)->pgm->pgmlist;
 
@@ -107,7 +106,7 @@ int main(void) {
             exec_commands(&cmd);
           }
         }
-        /* - - - - - - - - END LASANJIN - - - - - - - - */
+        /* - - - - - - - - END OUR CODE - - - - - - - - */
       }
     }
 
@@ -119,23 +118,13 @@ int main(void) {
   return 0;
 }
 
-/* - - - - - - - - LASANJIN - - - - - - - - */
+/* - - - - - - - - START OUR CODE - - - - - - - - */
 /*
  * Handle SIGCHLD signal
  */
 void sigchild_handler(int sig) {
   while ((waitpid(-1, NULL, WNOHANG) > 0)) {
   }
-}
-
-/*
- * Kill foreground processes
- */
-void sigint_handler(int sig) {
-  if (getppid() == lsh_pid) {
-    exit(0);
-  }
-  return;
 }
 
 /*
@@ -161,12 +150,20 @@ void exec_commands(Command *cmd) {
       break;
 
     case 0:
+      if (cmd->bakground == 1) {
+        // Don't kill background process
+        signal(SIGINT, SIG_IGN);
+
+      } else {
+        signal(SIGINT, SIG_DFL);
+      }
+
       redirect_rstd(cmd);
       pipe_commands(pgm);
       break;
 
     default:
-      if (!cmd->bakground) {
+      if (cmd->bakground == 0) {
         _wait();
       }
       break;
@@ -237,7 +234,7 @@ void pipe_commands(Pgm *pgm) {
       redirect_io(pipefd[W], STDOUT_FILENO);
       close(pipefd[R]);
 
-      pipe_commands(pgm->next);
+      pipe_commands(next);
       break;
 
     /*
@@ -273,7 +270,7 @@ void exec_args(char **args) {
     exit(1);
   }
 }
-/* - - - - - - - - END LASANJIN - - - - - - - - */
+/* - - - - - - - - END OUR CODE - - - - - - - - */
 
 /*
  * Prints a Command structure as returned by parse on stdout
