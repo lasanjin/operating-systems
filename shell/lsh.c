@@ -138,9 +138,7 @@ void exec_cd(char **args) {
   }
 }
 
-/*
- * Execute commands
- */
+/* Fork commands */
 void exec_commands(Command *cmd) {
   Pgm *pgm = cmd->pgm;
 
@@ -151,7 +149,7 @@ void exec_commands(Command *cmd) {
 
     case 0:
       if (cmd->bakground == 1) {
-        // Don't kill background process
+        /* Don't kill background process */
         signal(SIGINT, SIG_IGN);
 
       } else {
@@ -170,9 +168,7 @@ void exec_commands(Command *cmd) {
   }
 }
 
-/*
- * Handle '<' and '>' command
- */
+/* Handle '<' and '>' command */
 void redirect_rstd(Command *cmd) {
   int fd;
 
@@ -187,9 +183,7 @@ void redirect_rstd(Command *cmd) {
   }
 }
 
-/*
- * Redirect input/output
- */
+/* Redirect input/output */
 void redirect_io(int fd, int io) {
   if (fd == -1) {
     perror("open()");
@@ -203,15 +197,12 @@ void redirect_io(int fd, int io) {
   }
 }
 
-/*
- * Recursive pipe function:
- * Digs to last pgm which hold the first command.
- */
+/* Digs recursively to last pgm which holds the first command */
 void pipe_commands(Pgm *pgm) {
   Pgm *next = pgm->next;
 
   if (next == NULL) {
-    // Last pgm
+    /* Last pgm */
     exec_args(pgm->pgmlist);
     return;
   }
@@ -226,9 +217,7 @@ void pipe_commands(Pgm *pgm) {
       perror("fork()");
       break;
 
-    /*
-     * Make sure child can write to parent
-     */
+    /* Make sure child can write to parent */
     case 0:
       close(STDOUT_FILENO);
       redirect_io(pipefd[W], STDOUT_FILENO);
@@ -237,9 +226,7 @@ void pipe_commands(Pgm *pgm) {
       pipe_commands(next);
       break;
 
-    /*
-     * Make sure parent can read from child
-     */
+    /* Make sure parent can read from child */
     default:
       close(STDIN_FILENO);
       redirect_io(pipefd[R], STDIN_FILENO);
@@ -252,18 +239,14 @@ void pipe_commands(Pgm *pgm) {
   }
 }
 
-/*
- * Wait for child
- */
+/* Wait for child */
 void _wait() {
   if (wait(NULL) == -1) {
     perror("wait()");
   }
 }
 
-/*
- * Execute commands
- */
+/* Execute commands */
 void exec_args(char **args) {
   if (execvp(args[0], args) == -1) {
     perror("execvp()");
