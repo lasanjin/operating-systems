@@ -1,7 +1,7 @@
 # Operating Systems
 
 ## Description
-Lab assignments during Operating Systems course at Chalmers.
+Lab assignments and some [notes](notes/NOTES.md) from Operating Systems course at Chalmers.
 
 ### shell
 The purpose of this assignment was to implement a command **shell**, able to run programs on Linux platforms and supporting basic IO redirection and piping between commands.
